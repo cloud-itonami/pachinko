@@ -1,3 +1,1 @@
-{:name "ai-gftd-pachinko"
- :source "orgs/gftdcojp/ai-gftd-apps-gftdcojp/60-apps/ai-gftd-project-pachinko"
- :note "Split from ai-gftd-apps-gftdcojp for west-managed project ownership."}
+[{:db/id -1, :readme/name "ai-gftd-pachinko", :readme/source "orgs/gftdcojp/ai-gftd-apps-gftdcojp/60-apps/ai-gftd-project-pachinko", :readme/note "Split from ai-gftd-apps-gftdcojp for west-managed project ownership."}]

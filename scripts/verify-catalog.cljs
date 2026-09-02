@@ -1,0 +1,94 @@
+#!/usr/bin/env nbb
+;; verify-catalog.cljs — data/topics/*.jsonld のお題カタログが、それ自身が
+;; 名乗っている形になっているかを検査する。
+;;
+;;   nbb scripts/verify-catalog.cljs [<path>]
+;;
+;; 終了値は 3 値:
+;;   0  検査を実行し、違反 0 件
+;;   1  検査を実行し、違反あり（1 件ずつ標準出力に出す）
+;;   2  REFUSED — 検査そのものを実行できなかった（ファイルが読めない / 0 行）
+;;
+;; 2 を 0 や 1 と混ぜないのは、「測れなかった検査」と「測って問題が無かった検査」が
+;; 同じ値を返すのを避けるため。行数は必ず SCANNED として印字する（0 行を clean に
+;; しない evidence floor）。
+
+(ns verify-catalog
+  (:require ["fs" :as fs]
+            [clojure.string :as str]))
+
+(def ^:private default-path "data/topics/yukkuri-pachinko-topics.jsonld")
+
+(def ^:private required-item-keys
+  "1 件のお題が必ず持つキー。値が nil であることは許す（未収録の意味）が、
+   キーそのものが無いのは形が違う。"
+  [:topicId :status :angle :title :topic :machineType])
+
+(defn- refuse! [msg]
+  (println (str "REFUSED\t" msg))
+  (js/process.exit 2))
+
+(defn- read-catalog [path]
+  (let [text (try (fs/readFileSync path "utf8")
+                  (catch :default e (refuse! (str path " が読めない: " (.-message e)))))]
+    (try (js->clj (js/JSON.parse text) :keywordize-keys true)
+         (catch :default e (refuse! (str path " が JSON として読めない: " (.-message e)))))))
+
+(defn- findings [cat]
+  (let [elems (:itemListElement cat)
+        items (mapv :item elems)
+        declared (set (map name (keys (:angles cat))))
+        used (into #{} (remove nil? (map :angle items)))
+        dup-ids (->> (frequencies (remove nil? (map :topicId items)))
+                     (filter #(> (val %) 1))
+                     (sort-by key)
+                     (mapv key))
+        missing-keys (->> items
+                          (keep (fn [it]
+                                  (let [miss (remove #(contains? it %) required-item-keys)]
+                                    (when (seq miss)
+                                      (str (:topicId it "<no topicId>") ": "
+                                           (str/join "," (map name miss)))))))
+                          vec)
+        positions (mapv :position elems)]
+    (cond-> []
+      (not= (:topicCount cat) (count elems))
+      (conj (str "header-count-mismatch\ttopicCount=" (:topicCount cat)
+                 " だが itemListElement は " (count elems) " 行"))
+
+      (not= positions (vec (range 1 (inc (count elems)))))
+      (conj (str "position-not-contiguous\tposition が 1.." (count elems) " の連番ではない"))
+
+      (seq dup-ids)
+      (conj (str "topicId-not-unique\t" (count dup-ids) " 件の topicId が重複 "
+                 "（行 " (count elems) " / 相異なる " (count (distinct (map :topicId items))) "）: "
+                 (str/join ", " (take 3 dup-ids))
+                 (when (> (count dup-ids) 3) (str " … 他 " (- (count dup-ids) 3) " 件"))))
+
+      (seq (remove declared used))
+      (conj (str "angle-not-declared\tangles に無い angle が使われている: "
+                 (str/join ", " (sort (remove declared used)))))
+
+      (seq (remove used declared))
+      (conj (str "angle-unused\tangles に在るが 1 件も使われていない: "
+                 (str/join ", " (sort (remove used declared)))))
+
+      (seq missing-keys)
+      (conj (str "item-missing-keys\t" (count missing-keys) " 件: "
+                 (str/join " / " (take 3 missing-keys)))))))
+
+(defn -main [& args]
+  (let [path (or (first (remove #(str/starts-with? % "--") args)) default-path)
+        cat (read-catalog path)
+        elems (:itemListElement cat)]
+    (when-not (vector? elems)
+      (refuse! (str path " に itemListElement の配列が無い")))
+    (println (str "SCANNED\t" (count elems) "\t" path))
+    (when (zero? (count elems))
+      (refuse! (str path " の itemListElement が 0 行 —— 0 行を clean と report しない")))
+    (let [fs* (findings cat)]
+      (doseq [f fs*] (println (str "FINDING\t" f)))
+      (println (str "FINDINGS\t" (count fs*)))
+      (js/process.exit (if (seq fs*) 1 0)))))
+
+(apply -main *command-line-args*)

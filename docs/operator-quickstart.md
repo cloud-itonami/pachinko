@@ -23,7 +23,7 @@ data/topics/yukkuri-pachinko-topics.jsonld
 docs/operator-quickstart.md
 edn-datomize.bb
 schema.edn
-scripts/verify-catalog.cljs
+scripts/verify-catalog.kotoba
 ```
 
 `data/topics/*.jsonld` が正本で、残りは来歴・検査・変換器。
@@ -31,7 +31,7 @@ scripts/verify-catalog.cljs
 ## 2. カタログの形を検査する（この repo の gate）
 
 ```bash
-nbb scripts/verify-catalog.cljs > /tmp/pachinko-verify.out; echo "EXIT=$?"; cat /tmp/pachinko-verify.out
+nbb scripts/verify-catalog.kotoba > /tmp/pachinko-verify.out; echo "EXIT=$?"; cat /tmp/pachinko-verify.out
 ```
 
 ```
@@ -72,10 +72,10 @@ nbb -e '
 (println "wrote" (count kept) "rows")'
 
 # (b) その写しに当てる → 緑
-nbb scripts/verify-catalog.cljs /tmp/catalog-clean.jsonld > /tmp/a.out; echo "EXIT=$?"; cat /tmp/a.out
+nbb scripts/verify-catalog.kotoba /tmp/catalog-clean.jsonld > /tmp/a.out; echo "EXIT=$?"; cat /tmp/a.out
 
 # (c) 無いファイルに当てる → REFUSED
-nbb scripts/verify-catalog.cljs /tmp/does-not-exist.jsonld > /tmp/b.out; echo "EXIT=$?"; cat /tmp/b.out
+nbb scripts/verify-catalog.kotoba /tmp/does-not-exist.jsonld > /tmp/b.out; echo "EXIT=$?"; cat /tmp/b.out
 ```
 
 ```

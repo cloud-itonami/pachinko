@@ -19,7 +19,7 @@
 | `README.md.edn` | この repo の来歴を datom 3 つで持つ | `edn-datomize.bb` の生成物 |
 | `schema.edn` | `README.md.edn` の属性定義（`:readme/*` 3 件） | 同上・**手編集禁止** |
 | `edn-datomize.bb` | EDN → tx-data 変換器 | babashka。下記「注意」参照 |
-| `scripts/verify-catalog.cljs` | カタログの形を検査する（nbb） | 0=clean / 1=違反 / 2=REFUSED |
+| `scripts/verify-catalog.kotoba` | カタログの形を検査する（nbb） | 0=clean / 1=違反 / 2=REFUSED |
 | `docs/operator-quickstart.md` | 上を実際に踏む手順 | |
 
 ## カタログが言っていること — そして言っていないこと
@@ -36,7 +36,7 @@
 `generatedAt` は `2026-06-15T12:00:00+09:00`、`sourceMachineCount` は 575。
 どちらも**カタログの自己申告**であって、この repo の中に裏付けとなる機種 DB は無い。
 
-## 既知の欠陥（`scripts/verify-catalog.cljs` が報告する）
+## 既知の欠陥（`scripts/verify-catalog.kotoba` が報告する）
 
 1. `topicId-not-unique` — 45 件の topicId が 2 行ずつ在る（title も machineId も同一）。
    `topicId` を join key にする分析は、この 45 件を二重に数える。

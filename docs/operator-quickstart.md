@@ -58,7 +58,7 @@ FINDINGS	2
 
 ```bash
 # (a) 重複を落として ranking を宣言した写しを作る（正本には触らない）
-nbb -e '
+kbb --backend sci -e '
 (ns f (:require ["fs" :as fs]))
 (def m (js->clj (js/JSON.parse (fs/readFileSync "data/topics/yukkuri-pachinko-topics.jsonld" "utf8")) :keywordize-keys true))
 (def seen (atom #{}))
@@ -90,7 +90,7 @@ REFUSED	/tmp/does-not-exist.jsonld が読めない: ENOENT: no such file or dire
 ## 4. カタログの見出しを読む
 
 ```bash
-nbb -e '
+kbb --backend sci -e '
 (ns a (:require ["fs" :as fs]))
 (def j (js->clj (js/JSON.parse (fs/readFileSync "data/topics/yukkuri-pachinko-topics.jsonld" "utf8")) :keywordize-keys true))
 (doseq [k [:name :channel :channelId :generatedAt :sourceMachineCount :topicCount]]
@@ -112,7 +112,7 @@ topicCount	576
 ## 5. 内訳を数える
 
 ```bash
-nbb -e '
+kbb --backend sci -e '
 (ns a (:require ["fs" :as fs]))
 (def items (mapv :item (:itemListElement (js->clj (js/JSON.parse (fs/readFileSync "data/topics/yukkuri-pachinko-topics.jsonld" "utf8")) :keywordize-keys true))))
 (println "status" (pr-str (into (sorted-map) (frequencies (map :status items)))))
@@ -133,7 +133,7 @@ distinct-maker 56
 ## 6. 公開パイプラインの現在地を見る
 
 ```bash
-nbb -e '
+kbb --backend sci -e '
 (ns a (:require ["fs" :as fs]))
 (def items (mapv :item (:itemListElement (js->clj (js/JSON.parse (fs/readFileSync "data/topics/yukkuri-pachinko-topics.jsonld" "utf8")) :keywordize-keys true))))
 (doseq [k [:videoId :youtubeVideoId :publishedAt]]
@@ -153,7 +153,7 @@ publishedAt が埋まっている行	0 / 576
 ## 7. datom 面が読めることを確かめる
 
 ```bash
-nbb -e '
+kbb --backend sci -e '
 (ns a (:require ["fs" :as fs] [clojure.edn :as edn] [clojure.string :as str]))
 (let [tx (edn/read-string (fs/readFileSync "README.md.edn" "utf8"))
       sc (edn/read-string (fs/readFileSync "schema.edn" "utf8"))]

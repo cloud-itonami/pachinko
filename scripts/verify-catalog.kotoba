@@ -1,8 +1,8 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; verify-catalog.cljs — data/topics/*.jsonld のお題カタログが、それ自身が
 ;; 名乗っている形になっているかを検査する。
 ;;
-;;   nbb scripts/verify-catalog.cljs [<path>]
+;;   kbb --backend sci scripts/verify-catalog.cljk [<path>]
 ;;
 ;; 終了値は 3 値:
 ;;   0  検査を実行し、違反 0 件

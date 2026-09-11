@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; edn-datomize.bb — EDN → Datomic/Datascript tx-data 変換ツール。
 ;; ai-gftd-pachinko 用に com-junkawasaki/root superproject の manifest/edn-datomize.bb
 ;; から移植（Phase 3 fanout, ADR: superproject 側の "EDN datomize" ワークストリーム）。
